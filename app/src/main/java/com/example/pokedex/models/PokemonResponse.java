@@ -2,7 +2,8 @@ package com.example.pokedex.models;
 
 import java.util.List;
 
-public class PokemonResponse { private int count;
+public class PokemonResponse {
+    private int count;
     private String next;
     private String previous;
     private List<Pokemon> results;
@@ -23,6 +24,7 @@ public class PokemonResponse { private int count;
         return results;
     }
 
+    //actualizar la lista de pokemones
     public void setResults(List<Pokemon> results) {
         this.results = results;
     }

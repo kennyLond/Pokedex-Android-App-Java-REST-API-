@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 public class FavoritesManager {
+    // llaves para llamarlos
     private static final String PREFS_NAME = "PokedexPrefs";
     private static final String FAVORITES_KEY = "favorites";
 
@@ -21,13 +22,13 @@ public class FavoritesManager {
         this.gson = new Gson();
     }
 
-    // Guardar favoritos
+    // convierte la lista en un json, almacenamiento interno con shared
     public void saveFavorites(List<Pokemon> favorites) {
         String json = gson.toJson(favorites);
         sharedPreferences.edit().putString(FAVORITES_KEY, json).apply();
     }
 
-    // Obtener favoritos
+    // lee el json si no tiene nada retorna una lista vacia sino convierte en una lista
     public List<Pokemon> getFavorites() {
         String json = sharedPreferences.getString(FAVORITES_KEY, null);
         if (json == null) {
@@ -46,10 +47,10 @@ public class FavoritesManager {
         }
     }
 
-    // Remover de favoritos
+    // Remover de obtiene la lista de favoritos, elimina al pkemon que tenga el mismo nobre y actualiza la lista
     public void removeFavorite(Pokemon pokemon) {
         List<Pokemon> favorites = getFavorites();
-        favorites.removeIf(p -> p.getName().equals(pokemon.getName()));
+        favorites.removeIf(poke -> poke.getName().equals(pokemon.getName()));
         saveFavorites(favorites);
     }
 
@@ -70,6 +71,7 @@ public class FavoritesManager {
             removeFavorite(pokemon);
         } else {
             addFavorite(pokemon);
+
         }
     }
 }

@@ -14,7 +14,8 @@ public interface PokeApiService {
 
 
     @GET("pokemon")
-    Call<PokemonResponse> getPokemonList(@Query("limit") int limit, @Query("offset") int offset);
+    Call<PokemonResponse> getPokemonList(@Query("limit") int limit);
+    // convierte al Json en esta estructura Models que creamos
 
     @GET("pokemon/{id}")
     Call<PokemonDetail> getPokemonDetail(@Path("id") int id);
@@ -23,3 +24,4 @@ public interface PokeApiService {
     Call<PokemonSpecies> getPokemonSpecies(@Path("id") int id);
 
 }
+// las peticiónes generan Call que son peticiones a la espera de ser llamadas pero que aun no se ejecutan

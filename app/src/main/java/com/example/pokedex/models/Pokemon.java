@@ -26,13 +26,12 @@ public class Pokemon {
     }
 
     public int getId() {
-        String[] urlParts = url.split("/");
+        String [] urlParts = url.split("/");
         return Integer.parseInt(urlParts[urlParts.length - 1]);
     }
 
     // Imagen HD (artwork oficial)
     public String getImageUrl() {
-        // Cambia de sprites normales a artwork oficial
         return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/" + getId() + ".png";
     }
 

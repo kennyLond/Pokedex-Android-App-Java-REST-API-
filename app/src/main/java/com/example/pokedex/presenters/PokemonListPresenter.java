@@ -22,11 +22,12 @@ public class PokemonListPresenter {
         this.repository = new PokemonRepository();
     }
 
-    public void loadPokemonList(int limit, int offset) {
+    public void loadPokemonList(int limit) {
         view.showLoading();
 
-        repository.getPokemonList(limit, offset, new Callback<PokemonResponse>() {
+        repository.getPokemonList(limit, new Callback<PokemonResponse>() {
             @Override
+            // se hizo la llamda, respondio el servidor
             public void onResponse(Call<PokemonResponse> call, Response<PokemonResponse> response) {
                 view.hideLoading();
 
@@ -36,7 +37,7 @@ public class PokemonListPresenter {
                     view.showError("Error al cargar los pokemones");
                 }
             }
-
+// si ocurrio una llamada y se identifico error
             @Override
             public void onFailure(Call<PokemonResponse> call, Throwable t) {
                 Log.e(TAG, "onFailure() - Error: " + t.getMessage(), t);
@@ -46,6 +47,7 @@ public class PokemonListPresenter {
         });
     }
 
+    //evitar fugas de memoria, se autodetruye
     public void onDestroy() {
         view = null;
     }

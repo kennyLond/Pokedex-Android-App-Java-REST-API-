@@ -2,6 +2,7 @@ package com.example.pokedex.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -21,14 +22,18 @@ import com.example.pokedex.R;
 import com.example.pokedex.adapters.PokemonAdapter;
 import com.example.pokedex.models.Pokemon;
 import com.example.pokedex.presenters.PokemonListPresenter;
+import com.example.pokedex.utils.PokemonSoundPlayer;
 import com.example.pokedex.views.PokemonListView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements PokemonListView {
 
-    private RecyclerView recyclerView;
+    // Decalracion de los componentes UI
+    private RecyclerView recyclerViewPrin;
     private ProgressBar progressBar;
     private EditText searchEditText;
     private ImageView imageViewFavorites;
@@ -36,23 +41,30 @@ public class MainActivity extends AppCompatActivity implements PokemonListView {
     private TextView txtErrorTitle;
     private TextView txtErrorMessage;
     private Button btnRetry;
+    private PokemonAdapter adapterPrin;
+    private PokemonListPresenter presenterPrin;
 
-    private PokemonAdapter adapter;
-    private PokemonListPresenter presenter;
+    private PokemonSoundPlayer soundPlayer;
+
+    private TextToSpeech textToSpeech;
+
+    private int limit = 151;
+
+    // array de los pokemos obtenidos para la opcion de busqueda
     private List<Pokemon> allPokemonList = new ArrayList<>();
 
+
+
+    // preparar la pantalla
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Ocultar ActionBar nativa
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().hide();
-        }
+        soundPlayer = new PokemonSoundPlayer(this);
 
         // Inicializar vistas
-        recyclerView = findViewById(R.id.recyclerViewPokemons);
+        recyclerViewPrin = findViewById(R.id.recyclerViewPokemons);
         progressBar = findViewById(R.id.progressBar);
         searchEditText = findViewById(R.id.searchEditText);
         imageViewFavorites = findViewById(R.id.imageViewFavorites);
@@ -61,30 +73,49 @@ public class MainActivity extends AppCompatActivity implements PokemonListView {
         txtErrorMessage = findViewById(R.id.txtErrorMessage);
         btnRetry = findViewById(R.id.btnRetry);
 
+        // Ocultar ActionBar nativa
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+
         // Configurar RecyclerView
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        adapter = new PokemonAdapter(new PokemonAdapter.OnPokemonClickListener() {
+        //gridLayoutManager diseño de cuadricula, this es la pantalla y se divide en 2
+        recyclerViewPrin.setLayoutManager(new GridLayoutManager(this, 2));
+
+
+        //Inicializamos la voz
+        startroboticvoice();
+
+
+        // variable donde guardamos el adaptador,  creamos una nueva instancia, y de la clase pokemonadapter, creamos una nueva implementacion de onPokemons
+        adapterPrin = new PokemonAdapter(new PokemonAdapter.OnPokemonClickListener() {
             @Override
             public void onPokemonClick(Pokemon pokemon) {
                 openDetailActivity(pokemon);
             }
+
+            @Override
+            public void onPokemonLongClick(Pokemon pokemon) {
+                playName(pokemon.getName());
+            }
         });
-        recyclerView.setAdapter(adapter);
+// le dice al reciclerView que los datos a mostrar son los del adapter
+        recyclerViewPrin.setAdapter(adapterPrin);
 
         // Inicializar presenter
-        presenter = new PokemonListPresenter(this);
+        presenterPrin = new PokemonListPresenter(this);
 
         // Configurar botón de reintento
         btnRetry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Reintentar cargar los pokemones
-                presenter.loadPokemonList(151, 0);
+                presenterPrin.loadPokemonList(limit);
             }
         });
 
         // Cargar pokemones
-        presenter.loadPokemonList(151, 0);
+        presenterPrin.loadPokemonList(limit);
 
         // Configurar búsqueda
         setupSearch();
@@ -92,9 +123,10 @@ public class MainActivity extends AppCompatActivity implements PokemonListView {
         // Configurar botón de favoritos
         imageViewFavorites.setOnClickListener(new View.OnClickListener() {
             @Override
+            //ir de esta pantalla a favoritos
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, FavoritesActivity.class);
-                startActivity(intent);
+                Intent fav = new Intent(MainActivity.this, FavoritesActivity.class);
+                startActivity(fav);
             }
         });
     }
@@ -102,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements PokemonListView {
     private void setupSearch() {
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
+            //cambiar s
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
@@ -118,17 +151,18 @@ public class MainActivity extends AppCompatActivity implements PokemonListView {
 
     private void filterPokemon(String query) {
         if (query.isEmpty()) {
-            adapter.setPokemonList(allPokemonList);
+            adapterPrin.setPokemonList(allPokemonList);
             return;
         }
 
         List<Pokemon> filteredList = new ArrayList<>();
         for (Pokemon pokemon : allPokemonList) {
+            //contains busca coincidencias entre pokemones y las letras
             if (pokemon.getName().toLowerCase().contains(query.toLowerCase())) {
                 filteredList.add(pokemon);
             }
         }
-        adapter.setPokemonList(filteredList);
+        adapterPrin.setPokemonList(filteredList);
     }
 
     private void openDetailActivity(Pokemon pokemon) {
@@ -139,25 +173,64 @@ public class MainActivity extends AppCompatActivity implements PokemonListView {
         startActivity(intent);
     }
 
+
+    private void startroboticvoice() {
+        textToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status == TextToSpeech.SUCCESS) {
+
+                    int result = textToSpeech.setLanguage(new Locale("es","Es"));
+
+                    if (result == TextToSpeech.LANG_MISSING_DATA ||
+                            result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        Toast.makeText(MainActivity.this,
+                                "Idioma no soportado", Toast.LENGTH_SHORT).show();
+                    } else {
+
+                    }
+                }
+            }
+        });
+    }
+
+    private void playName(String PokemonName) {
+        if (textToSpeech != null) {
+
+            textToSpeech.stop();
+
+            textToSpeech.setSpeechRate(0.85f);
+            textToSpeech.setPitch(1.0f);
+
+            textToSpeech.speak(PokemonName, TextToSpeech.QUEUE_FLUSH, null, null);
+
+
+        } else {
+            Toast.makeText(this, "Voz no inicializada", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+
     @Override
     public void showLoading() {
         progressBar.setVisibility(View.VISIBLE);
-        recyclerView.setVisibility(View.GONE);
+        recyclerViewPrin.setVisibility(View.GONE);
         layoutError.setVisibility(View.GONE); // Ocultar error al cargar
     }
 
     @Override
     public void hideLoading() {
         progressBar.setVisibility(View.GONE);
-        recyclerView.setVisibility(View.VISIBLE);
+        recyclerViewPrin.setVisibility(View.VISIBLE);
         layoutError.setVisibility(View.GONE); // Asegurar que error esté oculto
     }
 
     @Override
     public void showPokemonList(List<Pokemon> pokemonList) {
         this.allPokemonList = new ArrayList<>(pokemonList);
-        adapter.setPokemonList(pokemonList);
-        recyclerView.setVisibility(View.VISIBLE);
+        adapterPrin.setPokemonList(pokemonList);
+        recyclerViewPrin.setVisibility(View.VISIBLE);
         layoutError.setVisibility(View.GONE); // Ocultar error al tener datos
     }
 
@@ -165,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements PokemonListView {
     public void showError(String message) {
         // Ocultar loading y RecyclerView
         progressBar.setVisibility(View.GONE);
-        recyclerView.setVisibility(View.GONE);
+        recyclerViewPrin.setVisibility(View.GONE);
 
         // Configurar y mostrar layout de error
         txtErrorTitle.setText("Error de conexión");
@@ -178,7 +251,22 @@ public class MainActivity extends AppCompatActivity implements PokemonListView {
 
     @Override
     protected void onDestroy() {
+
+        if (textToSpeech != null) {
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+        }
         super.onDestroy();
-        presenter.onDestroy();
+
+
+        presenterPrin.onDestroy();
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+
+
 }

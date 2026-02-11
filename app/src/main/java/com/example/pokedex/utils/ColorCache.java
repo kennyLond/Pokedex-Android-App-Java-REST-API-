@@ -14,7 +14,7 @@ public class ColorCache {
         darkColorCache = new HashMap<>();
     }
 
-//    si no esxixte cache, crea la instacia de color
+//    si no existe cache, crea la instacia de color
     public static ColorCache getInstance() {
         if (instance == null) {
             instance = new ColorCache();
@@ -35,6 +35,7 @@ public class ColorCache {
         return darkColorCache.get(pokemonId);
     }
 
+    // retornen ambos colores si coinciden con el id
     public boolean hasColors(int pokemonId) {
         return lightColorCache.containsKey(pokemonId) && darkColorCache.containsKey(pokemonId);
     }

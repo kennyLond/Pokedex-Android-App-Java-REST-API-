@@ -18,12 +18,14 @@ import com.example.pokedex.models.Stats;
 import com.example.pokedex.presenters.PokemonDetailPresenter;
 import com.example.pokedex.views.PokemonDetailView;
 import com.example.pokedex.utils.TypeColors;
+import com.example.pokedex.utils.PokemonSoundPlayer;
 
 public class DetailActivity extends AppCompatActivity implements PokemonDetailView {
 
     private ImageView imageViewPokemon;
     private ImageView imageViewHeart;
     private ImageView imageViewBack;
+    private ImageView imageViewSound;
     private TextView textViewName;
     private TextView textViewType;
     private TextView textViewDescription;
@@ -32,11 +34,16 @@ public class DetailActivity extends AppCompatActivity implements PokemonDetailVi
     private TextView textViewFavorite;
     private LinearLayout layoutStats;
     private LinearLayout layoutFavorite;
+    private LinearLayout layoutSound;
     private ProgressBar progressBar;
     private LinearLayout contentLayout;
-
     private PokemonDetailPresenter presenter;
     private Pokemon currentPokemon;
+    private PokemonSoundPlayer soundPlayer;
+
+    // Variables para detectar doble click
+    private static final long DOUBLE_CLICK_TIME = 300;
+    private long lastClickTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,10 +55,22 @@ public class DetailActivity extends AppCompatActivity implements PokemonDetailVi
             getSupportActionBar().hide();
         }
 
+        // Inicializar reproductor de sonido
+        soundPlayer = new PokemonSoundPlayer(this);
+
+        // Configurar listener para cuando termine el sonido
+        soundPlayer.setOnSoundCompletionListener(new PokemonSoundPlayer.OnSoundCompletionListener() {
+            @Override
+            public void onSoundCompleted() {
+                imageViewSound.setImageResource(R.drawable.ic_volume_off);
+            }
+        });
+
         // Inicializar vistas
         imageViewPokemon = findViewById(R.id.imageViewPokemon);
         imageViewHeart = findViewById(R.id.imageViewHeart);
         imageViewBack = findViewById(R.id.imageViewBack);
+        imageViewSound = findViewById(R.id.imageViewSound);
         textViewName = findViewById(R.id.textViewName);
         textViewType = findViewById(R.id.textViewType);
         textViewDescription = findViewById(R.id.textViewDescription);
@@ -60,13 +79,13 @@ public class DetailActivity extends AppCompatActivity implements PokemonDetailVi
         textViewFavorite = findViewById(R.id.textViewFavorite);
         layoutStats = findViewById(R.id.layoutStats);
         layoutFavorite = findViewById(R.id.layoutFavorite);
+        layoutSound = findViewById(R.id.layoutSound);
         progressBar = findViewById(R.id.progressBar);
         contentLayout = findViewById(R.id.contentLayout);
 
-        // Inicializar presenter
         presenter = new PokemonDetailPresenter(this, this);
 
-        // Obtener datos del Intent
+        // Obtener datos del Intent desde activity main
         int pokemonId = getIntent().getIntExtra("pokemon_id", 1);
         String pokemonName = getIntent().getStringExtra("pokemon_name");
         String pokemonUrl = getIntent().getStringExtra("pokemon_url");
@@ -85,6 +104,24 @@ public class DetailActivity extends AppCompatActivity implements PokemonDetailVi
             }
         });
 
+        // Configurar botón de sonido con doble click
+        layoutSound.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                long clickTime = System.currentTimeMillis();
+
+                if (clickTime - lastClickTime < DOUBLE_CLICK_TIME) {
+
+                    playPokemonSound();
+                    lastClickTime = 0;
+                } else {
+
+                    lastClickTime = clickTime;
+                }
+            }
+        });
+
         // Configurar botón de regresar
         imageViewBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,6 +129,13 @@ public class DetailActivity extends AppCompatActivity implements PokemonDetailVi
                 finish();
             }
         });
+    }
+
+    private void playPokemonSound() {
+        if (currentPokemon != null) {
+            soundPlayer.play(currentPokemon.getName());
+            imageViewSound.setImageResource(R.drawable.ic_volume_up);
+        }
     }
 
     @Override
@@ -152,6 +196,9 @@ public class DetailActivity extends AppCompatActivity implements PokemonDetailVi
         // Cambiar color del botón de favorito
         layoutFavorite.setBackgroundColor(typeColor);
 
+        // Cambiar color del botón de sonido
+        layoutSound.setBackgroundColor(typeColor);
+
         // Estadísticas
         displayStats(pokemonDetail);
     }
@@ -202,13 +249,14 @@ public class DetailActivity extends AppCompatActivity implements PokemonDetailVi
 
     private void displayStats(PokemonDetail pokemonDetail) {
         layoutStats.removeAllViews();
-
+//hace un recorrido en cada una de las estadisticas, las crea, agrega color, barra de progreso y valor
         // Obtener el color del tipo del pokemon
         String primaryType = pokemonDetail.getPrimaryType();
         int typeColor = TypeColors.getTypeColor(primaryType);
 
         if (pokemonDetail.getStats() != null) {
             for (Stats stat : pokemonDetail.getStats()) {
+                // inflamos las vistas desde item_stats
                 View statView = getLayoutInflater().inflate(R.layout.item_stat, layoutStats, false);
 
                 TextView statName = statView.findViewById(R.id.textViewStatName);
@@ -264,6 +312,7 @@ public class DetailActivity extends AppCompatActivity implements PokemonDetailVi
         if (isFavorite) {
             imageViewHeart.setImageResource(R.drawable.ic_heart_filled);
             textViewFavorite.setText("Quitar de favoritos");
+
         } else {
             imageViewHeart.setImageResource(R.drawable.ic_heart_outline);
             textViewFavorite.setText("Añadir a favoritos");
@@ -273,6 +322,14 @@ public class DetailActivity extends AppCompatActivity implements PokemonDetailVi
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        soundPlayer.stop();
         presenter.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        soundPlayer.pause();
+        imageViewSound.setImageResource(R.drawable.ic_volume_off);
     }
 }

@@ -4,23 +4,38 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class PokemonDetail {
+
+    @SerializedName("id")
     private int id;
+
+    @SerializedName("name")
     private String name;
+
+    @SerializedName("height")
     private int height;
+
+    @SerializedName("weight")
     private int weight;
-    private List<Stats> stats;
-    private Sprites sprites;
+
+    @SerializedName("sprites")
+    private Images images;
+
+    //Son lists por que no contienen valores unicos
+    @SerializedName("types")
     private List<TypeSlot> types;
+
+    @SerializedName("stats")
+    private List<Stats> stats;
+
+    @SerializedName("cries")
+    private Sound sound;
+
     private String description;
 
-    // MÉTODO PARA IMAGEN HD
-    public String getHdImageUrl() {
-        // Imagen HD oficial de PokeAPI
-        return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/" + this.id + ".png";
+    public PokemonDetail() {
     }
 
-
-    //  GETTERS y SETTERS
+    // Getters y Setters
     public int getId() {
         return id;
     }
@@ -53,20 +68,12 @@ public class PokemonDetail {
         this.weight = weight;
     }
 
-    public List<Stats> getStats() {
-        return stats;
+    public Images getImages() {
+        return images;
     }
 
-    public void setStats(List<Stats> stats) {
-        this.stats = stats;
-    }
-
-    public Sprites getSprites() {
-        return sprites;
-    }
-
-    public void setSprites(Sprites sprites) {
-        this.sprites = sprites;
+    public void setImages(Images images) {
+        this.images = images;
     }
 
     public List<TypeSlot> getTypes() {
@@ -77,7 +84,22 @@ public class PokemonDetail {
         this.types = types;
     }
 
-    //  GETTER y SETTER para descripción
+    public List<Stats> getStats() {
+        return stats;
+    }
+
+    public void setStats(List<Stats> stats) {
+        this.stats = stats;
+    }
+
+    public Sound getSound() {
+        return sound;
+    }
+
+    public void setCries(Sound sound) {
+        this.sound = sound;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -86,6 +108,17 @@ public class PokemonDetail {
         this.description = description;
     }
 
+    // Imagen oficial del Pokémon
+    // mira todas las capas de imagen hasta que encuentre algo
+    public String getImageUrl() {
+        if (images != null && images.getOther() != null
+                && images.getOther().getOfficialArtwork() != null) {
+            return images.getOther().getOfficialArtwork().getFrontDefault();
+        }
+        return null;
+    }
+
+    // Tipo principal del Pokémon
     public String getPrimaryType() {
         if (types != null && !types.isEmpty()) {
             return types.get(0).getType().getName();
@@ -93,13 +126,39 @@ public class PokemonDetail {
         return "normal";
     }
 
-    //  MANTENER compatibilidad con código existente
-    public String getImageUrl() {
-        // Usar imagen HD por defecto
-        return getHdImageUrl();
+    // ===== Clases internas =====
+    // clases que usamos para la logica de las imagenes
+
+    public static class Images {
+
+        @SerializedName("other")
+        private Other other;
+
+        public Other getOther() {
+            return other;
+        }
+
+        public void setOther(Other other) {
+            this.other = other;
+        }
     }
 
-    public static class Sprites {
+    public static class Other {
+
+        @SerializedName("official-artwork")
+        private OfficialArtwork officialArtwork;
+
+        public OfficialArtwork getOfficialArtwork() {
+            return officialArtwork;
+        }
+
+        public void setOfficialArtwork(OfficialArtwork officialArtwork) {
+            this.officialArtwork = officialArtwork;
+        }
+    }
+
+    public static class OfficialArtwork {
+
         @SerializedName("front_default")
         private String frontDefault;
 
@@ -113,7 +172,11 @@ public class PokemonDetail {
     }
 
     public static class TypeSlot {
+
+        @SerializedName("slot")
         private int slot;
+
+        @SerializedName("type")
         private Type type;
 
         public int getSlot() {
@@ -131,17 +194,30 @@ public class PokemonDetail {
         public void setType(Type type) {
             this.type = type;
         }
+    }
 
-        public static class Type {
-            private String name;
+    public static class Type {
 
-            public String getName() {
-                return name;
-            }
+        @SerializedName("name")
+        private String name;
 
-            public void setName(String name) {
-                this.name = name;
-            }
+        @SerializedName("url")
+        private String url;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
         }
     }
 }

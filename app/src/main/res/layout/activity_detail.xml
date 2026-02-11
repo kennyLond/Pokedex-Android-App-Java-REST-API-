@@ -136,39 +136,84 @@
                             android:textColor="#2C3E50"
                             android:elevation="8dp" />
 
-                        <!-- Botón de favorito con corazón -->
+                        <!-- Contenedor de botones -->
                         <LinearLayout
-                            android:id="@+id/layoutFavorite"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center"
-                            android:layout_marginTop="20dp"
-                            android:paddingStart="20dp"
-                            android:paddingEnd="20dp"
-                            android:paddingTop="14dp"
-                            android:paddingBottom="14dp"
-                            android:background="@drawable/favorite_button_background"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:elevation="4dp">
+                            android:layout_marginTop="20dp">
 
-                            <ImageView
-                                android:id="@+id/imageViewHeart"
-                                android:layout_width="28dp"
-                                android:layout_height="28dp"
-                                android:src="@drawable/ic_heart_outline"
-                                android:contentDescription="Corazón favorito" />
-
-                            <TextView
-                                android:id="@+id/textViewFavorite"
+                            <!-- Botón de sonido con ícono de volumen -->
+                            <LinearLayout
+                                android:id="@+id/layoutSound"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="10dp"
-                                android:text="Añadir a favoritos"
-                                android:textColor="#FFFFFF"
-                                android:textSize="16sp"
-                                android:textStyle="bold" />
+                                android:orientation="horizontal"
+                                android:gravity="center"
+                                android:paddingStart="20dp"
+                                android:paddingEnd="20dp"
+                                android:paddingTop="14dp"
+                                android:paddingBottom="14dp"
+                                android:background="@drawable/favorite_button_background"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:elevation="4dp"
+                                android:layout_marginEnd="12dp">
+
+                                <ImageView
+                                    android:id="@+id/imageViewSound"
+                                    android:layout_width="28dp"
+                                    android:layout_height="28dp"
+                                    android:src="@drawable/ic_volume_off"
+                                    android:contentDescription="Sonido del Pokémon"
+                                    app:tint="@android:color/white" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="10dp"
+                                    android:text="Sonido"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                            </LinearLayout>
+
+                            <!-- Botón de favorito con corazón -->
+                            <LinearLayout
+                                android:id="@+id/layoutFavorite"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center"
+                                android:paddingStart="20dp"
+                                android:paddingEnd="20dp"
+                                android:paddingTop="14dp"
+                                android:paddingBottom="14dp"
+                                android:background="@drawable/favorite_button_background"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:elevation="4dp">
+
+                                <ImageView
+                                    android:id="@+id/imageViewHeart"
+                                    android:layout_width="28dp"
+                                    android:layout_height="28dp"
+                                    android:src="@drawable/ic_heart_outline"
+                                    android:contentDescription="Corazón favorito" />
+
+                                <TextView
+                                    android:id="@+id/textViewFavorite"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="10dp"
+                                    android:text="Favorito"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                            </LinearLayout>
 
                         </LinearLayout>
 
