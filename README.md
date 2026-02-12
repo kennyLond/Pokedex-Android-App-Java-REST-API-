@@ -197,10 +197,10 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 
 ## 👨‍💻 Autor
 
-**[Tu Nombre]**
-- GitHub: [@tu-usuario](https://github.com/tu-usuario)
-- LinkedIn: [Tu Perfil](https://linkedin.com/in/tu-perfil)
-- Email: tu.email@ejemplo.com
+Kenny Orlando Londoño Torrado
+- GitHub: https://github.com/kennyLond
+- LinkedIn: www.linkedin.com/in/kennylondono
+- Email: kenny.londono.dev@gmail.com
 
 ## 🙏 Agradecimientos
 
