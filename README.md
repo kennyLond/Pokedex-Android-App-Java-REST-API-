@@ -162,9 +162,9 @@ Run > Run 'app' o presiona Shift + F10
 ## 📸 Capturas de Pantalla
 
 <div align="center">
-  <img src="assets/screenshots/principal.png" alt="Pantalla principal" width="250"/>
-  <img src="assets/screenshots/detail_1.png" alt="Detalle 1" width="250"/>
-  <img src="assets/screenshots/detail_2.png" alt="Detalle 2" width="250"/>
+  <img src="screenshots/principal.png" width="250"/>
+  <img src="screenshots/detail_1.png" width="250"/>
+  <img src="screenshots/detail_2.png" width="250"/>
 </div>
 
 
